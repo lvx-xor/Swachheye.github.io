@@ -1,0 +1,5 @@
+{"email":"inderjit0248@gmail.com","otp":"588287","purpose":"verify","expiresAt":"2026-04-04T16:30:47.068Z","used":true,"createdAt":"2026-04-04T16:20:47.094Z","_id":"3wooJSWodtVtLxbC"}
+{"email":"test3@example.com","otp":"116337","purpose":"verify","expiresAt":"2026-04-04T22:24:22.127Z","used":false,"createdAt":"2026-04-04T22:14:22.127Z","_id":"I3b7roya2LHZjNBh"}
+{"email":"endminecraft1322@gmail.com","otp":"703889","purpose":"verify","expiresAt":"2026-04-04T22:23:16.441Z","used":true,"createdAt":"2026-04-04T22:13:16.444Z","_id":"LMuA8qZSR7zMCS1k"}
+{"email":"test@example.com","otp":"246385","purpose":"verify","expiresAt":"2026-04-04T22:18:37.389Z","used":false,"createdAt":"2026-04-04T22:08:37.449Z","_id":"x5Fj1qQJboZl277s"}
+{"$$indexCreated":{"fieldName":"email","unique":false,"sparse":false}}

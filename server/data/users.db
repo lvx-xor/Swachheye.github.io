@@ -1,0 +1,5 @@
+{"name":"Test User","email":"test@example.com","password":"$2a$12$XPbstZXTr0k4aPG2m1mHHebKY/X4fCWn4r4X6tpHHS07Dq9EXKiZi","role":"citizen","verified":false,"avatar":"🌿","points":0,"createdAt":"2026-04-04T22:08:37.362Z","_id":"9BONeDiVLIWnfb8G"}
+{"name":"lovevir singh","email":"endminecraft1322@gmail.com","password":"$2a$12$EMd6AAqFgbw03yIxBfjq9ediLdrFgj1xx2W7FyqgTJYY/MEJSY9Hm","role":"citizen","verified":true,"avatar":"🌿","points":0,"createdAt":"2026-04-04T22:13:16.427Z","_id":"bUgdCaTwufT0xvAo"}
+{"name":"inderjit","email":"inderjit0248@gmail.com","password":"$2a$12$8uV7hu0/yCkrVMsBiOceAuUUy3tvKkNhVG19UpF154wyqMt2Wmpuy","role":"citizen","verified":true,"avatar":"🌿","createdAt":"2026-04-04T16:20:47.061Z","_id":"ki5NmeSiUPKSeqbg","lastLogin":"2026-04-05T02:10:18.598Z"}
+{"name":"Test User 3","email":"test3@example.com","password":"$2a$12$jUASwW1hxmYx5Kp/lcG4Q.sz21AGXxe6JVtSmwGW4bB6lfYoNp6fe","role":"citizen","verified":false,"avatar":"🌿","points":0,"createdAt":"2026-04-04T22:14:22.119Z","_id":"vCGJ4V8BjRgaZDOT"}
+{"$$indexCreated":{"fieldName":"email","unique":true,"sparse":false}}
