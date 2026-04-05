@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Login — Swachhta & LiFE Smart City Dashboard. Sign in or create an account to access your cleanliness monitoring dashboard.">
+  <title>Login — Swachhta & LiFE Dashboard</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/variables.css">
+  <script src="js/auth.js"></script>
+
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+
+    body {
+      font-family: 'Inter', var(--font-family, sans-serif);
+      background: var(--color-bg, #F5F7F4);
+      color: var(--text-primary, #1A2E1A);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ── Background ── */
+    .login-bg {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+    }
+    .bg-orb {
+      position: absolute; border-radius: 50%; filter: blur(100px);
+    }
+    .bg-orb-1 {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(74,103,65,0.15) 0%, transparent 70%);
+      top: -15%; left: -10%;
+      animation: orbFloat1 10s ease-in-out infinite;
+    }
+    .bg-orb-2 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(107,142,35,0.1) 0%, transparent 70%);
+      bottom: -10%; right: -5%;
+      animation: orbFloat2 12s ease-in-out infinite;
+    }
+    .bg-orb-3 {
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(156,175,136,0.12) 0%, transparent 70%);
+      top: 50%; left: 60%;
+      animation: orbFloat1 14s ease-in-out infinite reverse;
+    }
+    @keyframes orbFloat1 {
+      0%, 100% { transform: translate(0,0); }
+      50% { transform: translate(20px,-30px); }
+    }
+    @keyframes orbFloat2 {
+      0%, 100% { transform: translate(0,0); }
+      50% { transform: translate(-25px,-20px); }
+    }
+
+    /* ── Wrapper ── */
+    .login-container {
+      position: relative; z-index: 2;
+      width: 100%; max-width: 480px;
+      padding: 0 20px;
+      animation: loginSlideUp 0.7s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes loginSlideUp {
+      from { opacity: 0; transform: translateY(30px) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* ── Logo ── */
+    .login-logo {
+      text-align: center; margin-bottom: 32px;
+    }
+    .logo-icon {
+      width: 72px; height: 72px;
+      border-radius: 22px;
+      background: linear-gradient(135deg, #4A6741, #6B8E3B);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.2rem;
+      margin: 0 auto 16px;
+      box-shadow: 0 8px 32px rgba(74,103,65,0.25), 0 0 0 6px rgba(74,103,65,0.06);
+      animation: logoPulse 3s ease-in-out infinite;
+    }
+    @keyframes logoPulse {
+      0%, 100% { box-shadow: 0 8px 32px rgba(74,103,65,0.25), 0 0 0 6px rgba(74,103,65,0.06); }
+      50%       { box-shadow: 0 8px 32px rgba(74,103,65,0.35), 0 0 0 10px rgba(74,103,65,0.04); }
+    }
+    .login-logo h1 {
+      font-size: 1.7rem; font-weight: 700;
+      color: #1A2E1A; letter-spacing: -0.02em;
+    }
+    .login-logo p {
+      font-size: 0.78rem; color: #7D8B7D;
+      margin-top: 4px; text-transform: uppercase;
+      letter-spacing: 0.15em; font-weight: 500;
+    }
+
+    /* ── Card ── */
+    .login-card {
+      background: rgba(255,255,255,0.55);
+      backdrop-filter: blur(50px) saturate(2);
+      -webkit-backdrop-filter: blur(50px) saturate(2);
+      border: 1px solid rgba(255,255,255,0.5);
+      border-radius: 24px;
+      padding: 40px;
+      box-shadow: 0 8px 40px rgba(74,103,65,0.08), inset 0 1px 0 rgba(255,255,255,0.6);
+    }
+
+    /* ── Tab Switcher ── */
+    .tab-bar {
+      display: flex; background: rgba(74,103,65,0.06);
+      border-radius: 14px; padding: 4px;
+      margin-bottom: 28px; gap: 4px;
+    }
+    .tab-btn {
+      flex: 1; padding: 10px;
+      border: none; border-radius: 10px;
+      background: transparent;
+      font-family: inherit; font-size: 0.875rem; font-weight: 600;
+      color: #7D8B7D; cursor: pointer;
+      transition: all 0.25s ease;
+    }
+    .tab-btn.active {
+      background: white;
+      color: #4A6741;
+      box-shadow: 0 2px 8px rgba(74,103,65,0.12);
+    }
+
+    /* ── Forms ── */
+    .auth-panel { display: none; }
+    .auth-panel.active { display: block; }
+
+    .form-group { margin-bottom: 18px; }
+
+    label {
+      display: block; font-size: 0.8rem; font-weight: 600;
+      color: #4A5D4A; margin-bottom: 7px; letter-spacing: 0.02em;
+    }
+
+    .input-wrapper { position: relative; }
+
+    .input-icon {
+      position: absolute; left: 14px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 1rem; opacity: 0.45; pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"] {
+      width: 100%;
+      padding: 14px 16px 14px 44px;
+      border-radius: 12px;
+      border: 1.5px solid rgba(74,103,65,0.12);
+      background: rgba(255,255,255,0.55);
+      color: #1A2E1A;
+      font-family: inherit; font-size: 0.95rem;
+      transition: all 0.25s ease; outline: none;
+    }
+    input:focus {
+      border-color: #4A6741;
+      box-shadow: 0 0 0 4px rgba(74,103,65,0.08);
+      background: rgba(255,255,255,0.8);
+    }
+    input::placeholder { color: #B0BDB0; }
+
+    .toggle-password {
+      position: absolute; right: 12px; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none; cursor: pointer;
+      font-size: 1rem; opacity: 0.4; transition: opacity 0.2s; padding: 4px;
+    }
+    .toggle-password:hover { opacity: 0.8; }
+
+    /* OTP input row */
+    .otp-row {
+      display: flex; gap: 8px;
+    }
+    .otp-row input {
+      flex: 1; text-align: center; font-size: 1.4rem;
+      font-weight: 700; letter-spacing: 0; padding: 14px 0;
+    }
+
+    /* ── Alerts / Messages ── */
+    .alert {
+      display: none;
+      padding: 12px 16px; border-radius: 12px;
+      font-size: 0.85rem; margin-bottom: 18px;
+      align-items: flex-start; gap: 8px;
+      animation: fadeIn 0.3s ease;
+    }
+    .alert.visible { display: flex; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } }
+
+    .alert-error {
+      background: rgba(197,48,48,0.06);
+      border: 1px solid rgba(197,48,48,0.15);
+      color: #C53030;
+    }
+    .alert-success {
+      background: rgba(74,103,65,0.06);
+      border: 1px solid rgba(74,103,65,0.18);
+      color: #4A6741;
+    }
+    .alert-info {
+      background: rgba(59,130,246,0.06);
+      border: 1px solid rgba(59,130,246,0.15);
+      color: #1d4ed8;
+    }
+
+    /* ── Options row ── */
+    .options-row {
+      display: flex; align-items: center;
+      justify-content: space-between; margin-bottom: 22px;
+    }
+    .options-row label {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 0.82rem; color: #4A5D4A;
+      cursor: pointer; margin-bottom: 0;
+    }
+    .options-row label input[type="checkbox"] {
+      width: 15px; height: 15px;
+      accent-color: #4A6741; cursor: pointer;
+    }
+    .options-row a {
+      font-size: 0.82rem; color: #4A6741;
+      text-decoration: none; font-weight: 600; transition: color 0.2s;
+    }
+    .options-row a:hover { color: #3a5234; text-decoration: underline; }
+
+    /* ── Submit button ── */
+    .btn-submit {
+      width: 100%; padding: 15px;
+      border: none; border-radius: 12px;
+      background: linear-gradient(135deg, #4A6741, #6B8E3B);
+      color: white; font-family: inherit;
+      font-size: 0.97rem; font-weight: 700;
+      cursor: pointer; transition: all 0.3s ease;
+      box-shadow: 0 4px 20px rgba(74,103,65,0.25);
+      position: relative; overflow: hidden;
+    }
+    .btn-submit::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .btn-submit:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(74,103,65,0.35);
+    }
+    .btn-submit:active:not(:disabled) { transform: translateY(0); }
+    .btn-submit:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
+
+    /* ── Secondary link button ── */
+    .btn-link {
+      background: none; border: none; font-family: inherit;
+      font-size: 0.85rem; color: #4A6741; font-weight: 600;
+      cursor: pointer; text-decoration: underline; padding: 0;
+    }
+    .btn-link:hover { color: #3a5234; }
+
+    /* ── Divider ── */
+    .divider {
+      display: flex; align-items: center; gap: 12px; margin: 22px 0;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px; background: rgba(74,103,65,0.1);
+    }
+    .divider span { font-size: 0.75rem; color: #B0BDB0; text-transform: uppercase; letter-spacing: 0.08em; }
+
+    /* ── Info box ── */
+    .info-box {
+      background: rgba(74,103,65,0.04);
+      border: 1px solid rgba(74,103,65,0.1);
+      border-radius: 12px; padding: 14px 16px;
+      font-size: 0.83rem; color: #4A5D4A;
+      line-height: 1.6; margin-bottom: 18px;
+    }
+    .info-box strong { color: #4A6741; }
+
+    /* ── OTP timer ── */
+    .otp-timer {
+      font-size: 0.8rem; color: #9BA89B; margin-top: 6px; text-align: center;
+    }
+    .otp-timer span { color: #4A6741; font-weight: 600; }
+
+    /* ── Backend status banner ── */
+    .backend-status {
+      display: none;
+      padding: 8px 14px; border-radius: 10px;
+      font-size: 0.8rem; margin-bottom: 16px; text-align: center;
+    }
+    .backend-status.offline {
+      display: block;
+      background: rgba(197,48,48,0.06);
+      border: 1px solid rgba(197,48,48,0.12);
+      color: #C53030;
+    }
+    .backend-status.online {
+      display: block;
+      background: rgba(74,103,65,0.06);
+      border: 1px solid rgba(74,103,65,0.15);
+      color: #4A6741;
+    }
+
+    /* ── Footer ── */
+    .login-footer {
+      text-align: center; margin-top: 20px;
+      font-size: 0.82rem; color: #9BA89B;
+    }
+
+    /* ── Spinner ── */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      display: inline-block; vertical-align: middle; margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 480px) {
+      .login-card { padding: 28px 20px; border-radius: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-bg" aria-hidden="true">
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+    <div class="bg-orb bg-orb-3"></div>
+  </div>
+
+  <div class="login-container">
+
+    <div class="login-logo">
+      <div class="logo-icon">🌿</div>
+      <h1>Swachhta & LiFE</h1>
+      <p>Smart City Monitor</p>
+    </div>
+
+    <div class="login-card">
+
+      <!-- Backend status -->
+      <div class="backend-status" id="backend-status"></div>
+
+      <!-- Tab bar -->
+      <div class="tab-bar" id="main-tabs">
+        <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">Sign In</button>
+        <button class="tab-btn" id="tab-register" onclick="switchTab('register')">Create Account</button>
+      </div>
+
+      <!-- ══ LOGIN PANEL ══ -->
+      <div class="auth-panel active" id="panel-login">
+        <div class="alert alert-error" id="login-error"></div>
+        <div class="alert alert-success" id="login-success"></div>
+
+        <form id="login-form" onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label for="login-email">Email Address</label>
+            <div class="input-wrapper">
+              <input type="email" id="login-email" placeholder="you@example.com" required autocomplete="email">
+              <span class="input-icon">📧</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="login-password">Password</label>
+            <div class="input-wrapper">
+              <input type="password" id="login-password" placeholder="Enter your password" required autocomplete="current-password">
+              <span class="input-icon">🔒</span>
+              <button type="button" class="toggle-password" onclick="togglePwd('login-password')" aria-label="Show password">👁️</button>
+            </div>
+          </div>
+
+          <div class="options-row">
+            <label>
+              <input type="checkbox" id="remember-me" checked> Remember me
+            </label>
+            <a href="#" onclick="showForgotPassword(event)">Forgot password?</a>
+          </div>
+
+          <button type="submit" class="btn-submit" id="login-btn">Sign In →</button>
+          
+
+        </form>
+
+        <div class="login-footer">
+          New to Swachhta? <button class="btn-link" onclick="switchTab('register')">Create free account</button>
+        </div>
+      </div>
+
+      <!-- ══ REGISTER PANEL ══ -->
+      <div class="auth-panel" id="panel-register">
+        <div class="alert alert-error" id="reg-error"></div>
+        <div class="alert alert-success" id="reg-success"></div>
+
+        <form id="register-form" onsubmit="handleRegister(event)">
+          <div class="form-group">
+            <label for="reg-name">Full Name</label>
+            <div class="input-wrapper">
+              <input type="text" id="reg-name" placeholder="Your full name" required autocomplete="name">
+              <span class="input-icon">👤</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="reg-email">Email Address</label>
+            <div class="input-wrapper">
+              <input type="email" id="reg-email" placeholder="you@example.com" required autocomplete="email">
+              <span class="input-icon">📧</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="reg-password">Password <span style="color:#9BA89B;font-weight:400">(min. 8 characters)</span></label>
+            <div class="input-wrapper">
+              <input type="password" id="reg-password" placeholder="Create a strong password" required minlength="8" autocomplete="new-password">
+              <span class="input-icon">🔒</span>
+              <button type="button" class="toggle-password" onclick="togglePwd('reg-password')" aria-label="Show password">👁️</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="reg-confirm">Confirm Password</label>
+            <div class="input-wrapper">
+              <input type="password" id="reg-confirm" placeholder="Repeat your password" required autocomplete="new-password">
+              <span class="input-icon">🔑</span>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-submit" id="register-btn">Send Verification Code →</button>
+        </form>
+
+        <div class="login-footer">
+          Already have an account? <button class="btn-link" onclick="switchTab('login')">Sign in</button>
+        </div>
+      </div>
+
+      <!-- ══ OTP VERIFICATION PANEL ══ -->
+      <div class="auth-panel" id="panel-otp">
+        <div class="alert alert-error" id="otp-error"></div>
+        <div class="alert alert-success" id="otp-success"></div>
+
+        <div class="info-box" id="otp-info">
+          📧 A 6-digit verification code has been sent to <strong id="otp-email-display">your email</strong>.<br>
+          Please check your inbox (and spam folder).
+        </div>
+
+        <form id="otp-form" onsubmit="handleVerifyOTP(event)">
+          <div class="form-group">
+            <label>Enter 6-Digit Code</label>
+            <div class="otp-row">
+              <input type="number" class="otp-digit" id="otp-d1" min="0" max="9" maxlength="1" placeholder="·" onInput="otpInput(this, 'otp-d2')">
+              <input type="number" class="otp-digit" id="otp-d2" min="0" max="9" maxlength="1" placeholder="·" onInput="otpInput(this, 'otp-d3')">
+              <input type="number" class="otp-digit" id="otp-d3" min="0" max="9" maxlength="1" placeholder="·" onInput="otpInput(this, 'otp-d4')">
+              <input type="number" class="otp-digit" id="otp-d4" min="0" max="9" maxlength="1" placeholder="·" onInput="otpInput(this, 'otp-d5')">
+              <input type="number" class="otp-digit" id="otp-d5" min="0" max="9" maxlength="1" placeholder="·" onInput="otpInput(this, 'otp-d6')">
+              <input type="number" class="otp-digit" id="otp-d6" min="0" max="9" maxlength="1" placeholder="·" onInput="otpInput(this, null)">
+            </div>
+          </div>
+
+          <div class="otp-timer" id="otp-timer">
+            Code expires in <span id="timer-display">10:00</span>
+          </div>
+
+          <button type="submit" class="btn-submit" id="otp-btn" style="margin-top: 20px;">Verify & Continue →</button>
+        </form>
+
+        <div style="text-align:center; margin-top: 16px; font-size: 0.85rem; color: #9BA89B;">
+          Didn't receive it? <button class="btn-link" id="resend-btn" onclick="resendOTP()">Resend code</button>
+        </div>
+
+        <div class="login-footer" style="margin-top: 12px;">
+          <button class="btn-link" onclick="switchTab('register')" style="font-weight:400; color: #9BA89B;">← Back to registration</button>
+        </div>
+      </div>
+
+      <!-- ══ FORGOT PASSWORD PANEL ══ -->
+      <div class="auth-panel" id="panel-forgot">
+        <div class="alert alert-error" id="forgot-error"></div>
+        <div class="alert alert-success" id="forgot-success"></div>
+
+        <div class="info-box">
+          🔐 Enter your email address and we'll send you a reset code.
+        </div>
+
+        <form id="forgot-form" onsubmit="handleForgotPassword(event)">
+          <div class="form-group">
+            <label for="forgot-email">Email Address</label>
+            <div class="input-wrapper">
+              <input type="email" id="forgot-email" placeholder="you@example.com" required>
+              <span class="input-icon">📧</span>
+            </div>
+          </div>
+          <button type="submit" class="btn-submit" id="forgot-btn">Send Reset Code →</button>
+        </form>
+
+        <div class="login-footer" style="margin-top: 16px;">
+          <button class="btn-link" onclick="switchTab('login')" style="font-weight:400; color: #9BA89B;">← Back to sign in</button>
+        </div>
+      </div>
+
+    </div><!-- /login-card -->
+  </div><!-- /login-container -->
+
+  <script>
+    const API = 'http://localhost:3001/api';
+    let pendingEmail = '';
+    let timerInterval = null;
+
+    // ── Check if already logged in ──────────────────────────
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (Auth.isLoggedIn()) {
+        window.location.href = 'index.html';
+        return;
+      }
+      // Check backend health
+      checkBackendHealth();
+    });
+
+    async function checkBackendHealth() {
+      const statusEl = document.getElementById('backend-status');
+      try {
+        const res = await fetch(`${API}/health`, { signal: AbortSignal.timeout(3000) });
+        if (res.ok) {
+          statusEl.className = 'backend-status online';
+          statusEl.textContent = '✅ Backend connected — all systems operational';
+          setTimeout(() => statusEl.style.display = 'none', 3000);
+        } else {
+          throw new Error('not ok');
+        }
+      } catch {
+        statusEl.className = 'backend-status offline';
+        statusEl.innerHTML = '⚠️ Backend offline. Start the server: <strong>cd server && node server.js</strong>';
+      }
+    }
+
+    // ── Tab switching ──────────────────────────────────────
+    function switchTab(tab) {
+      document.querySelectorAll('.auth-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+      document.getElementById(`panel-${tab}`).classList.add('active');
+      const tabBtn = document.getElementById(`tab-${tab}`);
+      if (tabBtn) tabBtn.classList.add('active');
+
+      if (tab === 'forgot') {
+        document.getElementById('main-tabs').style.display = 'none';
+      } else {
+        document.getElementById('main-tabs').style.display = 'flex';
+      }
+    }
+
+    // ── Alert helpers ──────────────────────────────────────
+    function showAlert(id, msg, type = 'error') {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.className = `alert alert-${type} visible`;
+      el.textContent = msg;
+    }
+    function hideAlert(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('visible');
+    }
+
+    // ── Set button loading state ───────────────────────────
+    function setLoading(btnId, loading, label = 'Submit') {
+      const btn = document.getElementById(btnId);
+      if (!btn) return;
+      btn.disabled = loading;
+      btn.innerHTML = loading
+        ? `<span class="spinner"></span> Please wait...`
+        : label;
+    }
+
+    // ── Password toggle ────────────────────────────────────
+    function togglePwd(id) {
+      const inp = document.getElementById(id);
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+    }
+
+    // ── OTP digit input ────────────────────────────────────
+    function otpInput(el, nextId) {
+      // Only keep 1 digit
+      if (el.value.length > 1) el.value = el.value.slice(-1);
+      if (el.value && nextId) {
+        document.getElementById(nextId)?.focus();
+      }
+    }
+
+    function getOTPValue() {
+      return ['otp-d1','otp-d2','otp-d3','otp-d4','otp-d5','otp-d6']
+        .map(id => document.getElementById(id).value)
+        .join('');
+    }
+
+    // ── OTP countdown timer ────────────────────────────────
+    function startOTPTimer(seconds = 600) {
+      if (timerInterval) clearInterval(timerInterval);
+      let remaining = seconds;
+
+      const display = document.getElementById('timer-display');
+
+      timerInterval = setInterval(() => {
+        remaining--;
+        const m = Math.floor(remaining / 60);
+        const s = remaining % 60;
+        if (display) display.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+        if (remaining <= 0) {
+          clearInterval(timerInterval);
+          if (display) display.textContent = 'EXPIRED';
+        }
+      }, 1000);
+    }
+
+    // ── LOGIN ──────────────────────────────────────────────
+    async function handleLogin(e) {
+      e.preventDefault();
+      hideAlert('login-error');
+      hideAlert('login-success');
+
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+
+      setLoading('login-btn', true, 'Sign In →');
+
+      try {
+        const res = await Auth.login(email, password);
+
+        if (!res) return; // redirected due to token expiry
+
+        if (!res.ok) {
+          if (res.data.needsVerification) {
+            pendingEmail = res.data.email;
+            showAlert('login-error', res.data.error, 'error');
+            setTimeout(() => {
+              switchTab('otp');
+              document.getElementById('otp-email-display').textContent = pendingEmail;
+              startOTPTimer();
+            }, 1500);
+          } else {
+            showAlert('login-error', res.data.error || 'Login failed.', 'error');
+          }
+          return;
+        }
+
+        // Success
+        Auth.setToken(res.data.token);
+        Auth.setUser(res.data.user);
+        showAlert('login-success', `✅ Welcome back, ${res.data.user.name}! Redirecting...`, 'success');
+
+        setTimeout(() => window.location.href = 'index.html', 1000);
+
+      } catch (err) {
+        showAlert('login-error', '⚠️ Cannot connect to server. Is the backend running?', 'error');
+        console.error('[Login]', err);
+      } finally {
+        setLoading('login-btn', false, 'Sign In →');
+      }
+    }
+
+    // ── REGISTER ──────────────────────────────────────────
+    async function handleRegister(e) {
+      e.preventDefault();
+      hideAlert('reg-error');
+      hideAlert('reg-success');
+
+      const name     = document.getElementById('reg-name').value.trim();
+      const email    = document.getElementById('reg-email').value.trim();
+      const password = document.getElementById('reg-password').value;
+      const confirm  = document.getElementById('reg-confirm').value;
+
+      if (password !== confirm) {
+        showAlert('reg-error', 'Passwords do not match.', 'error');
+        return;
+      }
+
+      setLoading('register-btn', true, 'Send Verification Code →');
+
+      try {
+        const res = await Auth.register(name, email, password);
+
+        if (!res) return;
+
+        if (!res.ok) {
+          showAlert('reg-error', res.data.error || 'Registration failed.', 'error');
+          return;
+        }
+
+        pendingEmail = email;
+        showAlert('reg-success', res.data.message, 'success');
+
+        setTimeout(() => {
+          switchTab('otp');
+          document.getElementById('otp-email-display').textContent = pendingEmail;
+          document.getElementById('main-tabs').style.display = 'none';
+          startOTPTimer();
+        }, 1200);
+
+      } catch (err) {
+        showAlert('reg-error', '⚠️ Cannot connect to server. Is the backend running?', 'error');
+        console.error('[Register]', err);
+      } finally {
+        setLoading('register-btn', false, 'Send Verification Code →');
+      }
+    }
+
+    // ── VERIFY OTP ─────────────────────────────────────────
+    async function handleVerifyOTP(e) {
+      e.preventDefault();
+      hideAlert('otp-error');
+      hideAlert('otp-success');
+
+      const otp = getOTPValue();
+      if (otp.length < 6) {
+        showAlert('otp-error', 'Please enter all 6 digits of the verification code.', 'error');
+        return;
+      }
+
+      setLoading('otp-btn', true, 'Verify & Continue →');
+
+      try {
+        const res = await Auth.verifyOTP(pendingEmail, otp);
+
+        if (!res) return;
+
+        if (!res.ok) {
+          showAlert('otp-error', res.data.error || 'Invalid code.', 'error');
+          return;
+        }
+
+        Auth.setToken(res.data.token);
+        Auth.setUser(res.data.user);
+
+        showAlert('otp-success', `🎉 ${res.data.message} Redirecting to dashboard...`, 'success');
+        clearInterval(timerInterval);
+
+        setTimeout(() => window.location.href = 'index.html', 1500);
+
+      } catch (err) {
+        showAlert('otp-error', '⚠️ Cannot connect to server. Is the backend running?', 'error');
+      } finally {
+        setLoading('otp-btn', false, 'Verify & Continue →');
+      }
+    }
+
+    // ── RESEND OTP ─────────────────────────────────────────
+    async function resendOTP() {
+      if (!pendingEmail) return;
+      const btn = document.getElementById('resend-btn');
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+
+      try {
+        const res = await Auth.resendOTP(pendingEmail);
+        if (res?.ok) {
+          showAlert('otp-success', res.data.message, 'success');
+          startOTPTimer();
+          ['otp-d1','otp-d2','otp-d3','otp-d4','otp-d5','otp-d6'].forEach(id => {
+            document.getElementById(id).value = '';
+          });
+          document.getElementById('otp-d1').focus();
+        } else {
+          showAlert('otp-error', res?.data?.error || 'Failed to resend.', 'error');
+        }
+      } catch {
+        showAlert('otp-error', 'Server error. Please try again.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Resend code';
+      }
+    }
+
+    // ── FORGOT PASSWORD ────────────────────────────────────
+    function showForgotPassword(e) {
+      e.preventDefault();
+      switchTab('forgot');
+    }
+
+    async function handleForgotPassword(e) {
+      e.preventDefault();
+      hideAlert('forgot-error');
+      hideAlert('forgot-success');
+
+      const email = document.getElementById('forgot-email').value.trim();
+      setLoading('forgot-btn', true, 'Send Reset Code →');
+
+      try {
+        const res = await Auth.forgotPassword(email);
+        if (res?.ok) {
+          showAlert('forgot-success', res.data.message, 'success');
+        } else {
+          showAlert('forgot-error', res?.data?.error || 'Request failed.', 'error');
+        }
+      } catch {
+        showAlert('forgot-error', 'Cannot connect to server.', 'error');
+      } finally {
+        setLoading('forgot-btn', false, 'Send Reset Code →');
+      }
+    }
+  </script>
+
+</body>
+</html>

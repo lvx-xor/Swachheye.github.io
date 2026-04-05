@@ -1,0 +1,142 @@
+/* ============================================
+   Swachhta & LiFE Dashboard — Design Tokens
+   Organic Nature / EcoTech Light Theme
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+  /* ── Color Palette — Organic / Earth ── */
+  --color-primary:        #4A6741;
+  --color-primary-light:  #5C7D52;
+  --color-primary-dark:   #3A5233;
+  --color-accent:         #6B8E23;
+  --color-accent-light:   #7BA23F;
+  --color-accent-muted:   #8BA872;
+  
+  --color-olive:          #556B2F;
+  --color-olive-light:    #6B7F3A;
+  --color-moss:           #4A7C59;
+  --color-sage:           #9CAF88;
+  
+  /* ── Backgrounds ── */
+  --color-bg:             #F7F5F0;
+  --color-bg-warm:        #F3F0E8;
+  --color-bg-cool:        #EFF2ED;
+  --color-bg-pure:        #FFFFFF;
+  
+  /* ── Surfaces ── */
+  --color-surface:        #FFFFFF;
+  --color-surface-raised: #FAFAF7;
+  --color-surface-card:   rgba(255, 255, 255, 0.85);
+  --color-surface-glass:  rgba(255, 255, 255, 0.6);
+  --color-surface-muted:  #F0EDE6;
+  --color-surface-hover:  #F5F3EE;
+  
+  /* ── Borders ── */
+  --color-border:         rgba(74, 103, 65, 0.12);
+  --color-border-hover:   rgba(74, 103, 65, 0.25);
+  --color-border-light:   rgba(0, 0, 0, 0.06);
+  --color-border-strong:  rgba(0, 0, 0, 0.12);
+  
+  /* ── Semantic Colors ── */
+  --color-blue:           #3B7DD8;
+  --color-blue-light:     #5B9AE8;
+  --color-blue-bg:        #EBF2FC;
+  --color-amber:          #C8840C;
+  --color-amber-light:    #E09B18;
+  --color-amber-bg:       #FFF7E6;
+  --color-red:            #C53030;
+  --color-red-light:      #E04848;
+  --color-red-bg:         #FFF0F0;
+  --color-purple:         #7C3AED;
+  --color-cyan:           #0891B2;
+  
+  --color-success:        var(--color-primary);
+  --color-warning:        var(--color-amber);
+  --color-danger:         var(--color-red);
+  --color-info:           var(--color-blue);
+  
+  /* ── Text Colors ── */
+  --text-primary:         #1A2E1A;
+  --text-secondary:       #4A5D4A;
+  --text-muted:           #7D8B7D;
+  --text-faint:           #A3AFA3;
+  --text-inverse:         #FFFFFF;
+  
+  /* ── Typography ── */
+  --font-family:          'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-display:         'DM Serif Display', Georgia, 'Times New Roman', serif;
+  
+  --font-size-xs:         0.75rem;
+  --font-size-sm:         0.8125rem;
+  --font-size-base:       0.875rem;
+  --font-size-md:         1rem;
+  --font-size-lg:         1.125rem;
+  --font-size-xl:         1.25rem;
+  --font-size-2xl:        1.5rem;
+  --font-size-3xl:        1.875rem;
+  --font-size-4xl:        2.25rem;
+  --font-size-5xl:        3rem;
+  --font-size-hero:       3.5rem;
+  
+  --font-weight-light:    300;
+  --font-weight-normal:   400;
+  --font-weight-medium:   500;
+  --font-weight-semibold: 600;
+  --font-weight-bold:     700;
+  --font-weight-black:    900;
+  
+  --line-height-tight:    1.2;
+  --line-height-normal:   1.5;
+  --line-height-relaxed:  1.7;
+  
+  /* ── Spacing ── */
+  --space-1:  0.25rem;
+  --space-2:  0.5rem;
+  --space-3:  0.75rem;
+  --space-4:  1rem;
+  --space-5:  1.25rem;
+  --space-6:  1.5rem;
+  --space-8:  2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  
+  /* ── Layout ── */
+  --sidebar-width:        260px;
+  --sidebar-collapsed:    72px;
+  --header-height:        64px;
+  --border-radius-sm:     6px;
+  --border-radius:        10px;
+  --border-radius-lg:     14px;
+  --border-radius-xl:     20px;
+  --border-radius-2xl:    28px;
+  --border-radius-full:   9999px;
+  
+  /* ── Shadows — Softer, Organic ── */
+  --shadow-xs:   0 1px 2px rgba(0,0,0,0.04);
+  --shadow-sm:   0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:   0 4px 12px rgba(74, 103, 65, 0.08), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg:   0 10px 30px rgba(74, 103, 65, 0.1), 0 4px 8px rgba(0,0,0,0.04);
+  --shadow-xl:   0 20px 50px rgba(74, 103, 65, 0.12);
+  --shadow-card: 0 2px 12px rgba(74, 103, 65, 0.06);
+  --shadow-card-hover: 0 8px 30px rgba(74, 103, 65, 0.12);
+  --shadow-btn:  0 2px 8px rgba(74, 103, 65, 0.2);
+  --shadow-btn-hover: 0 4px 16px rgba(74, 103, 65, 0.3);
+  
+  /* ── Transitions ── */
+  --transition-fast:   150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base:   250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow:   400ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  
+  /* ── Z-Index ── */
+  --z-base:    1;
+  --z-overlay: 10;
+  --z-sidebar: 100;
+  --z-header:  200;
+  --z-modal:   1000;
+  --z-toast:   2000;
+}

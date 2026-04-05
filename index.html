@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="Swachhta & LiFE Dashboard — Smart City cleanliness and sustainability monitoring powered by AI vision, interactive maps, and citizen engagement.">
+  <title>Swachhta & LiFE Dashboard — Smart City Monitor</title>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages.css">
+  <link rel="stylesheet" href="css/enhancements.css">
+
+  <!-- Leaflet.js Map & Clustering (Free, no API key) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+  <style>
+    @keyframes scanLine {
+      0% {
+        top: 0;
+        opacity: 1;
+      }
+
+      95% {
+        top: calc(100% - 3px);
+        opacity: 1;
+      }
+
+      100% {
+        top: 0;
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ══════════════════════════════════════ -->
+  <!--     3D NATURE BACKGROUND LAYER        -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="nature-bg" aria-hidden="true">
+    <img src="assets/moss-mountain.png" class="mountain-element" alt="" loading="lazy">
+    <img src="assets/moss-mountain.png" class="mountain-element-secondary" alt="" loading="lazy">
+    <img src="assets/floating-leaf.png" class="leaf-element" alt="" loading="lazy">
+    <img src="assets/floating-leaf.png" class="leaf-element-2" alt="" loading="lazy">
+    <img src="assets/floating-leaf.png" class="leaf-element-3" alt="" loading="lazy">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!--              APP SHELL                -->
+  <!-- ══════════════════════════════════════ -->
+  <div class="app-shell">
+
+    <!-- Sidebar Overlay -->
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+    <!-- ── Sidebar ── -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">🌿</div>
+        <div class="logo-text">
+          <span class="logo-title">Swachhta & LiFE</span>
+          <span class="logo-subtitle">Smart City Monitor</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">Main</div>
+
+        <a class="nav-item active" data-page="ai-detection" id="nav-ai-detection">
+          <span class="nav-icon">📸</span>
+          <span class="nav-label">AI Detection</span>
+        </a>
+
+        <a class="nav-item" data-page="map" id="nav-map">
+          <span class="nav-icon">🗺️</span>
+          <span class="nav-label">City Map</span>
+        </a>
+
+        <a class="nav-item" data-page="life-score" id="nav-life-score">
+          <span class="nav-icon">📊</span>
+          <span class="nav-label">LiFE Score</span>
+        </a>
+
+        <a class="nav-item" data-page="citizen" id="nav-citizen">
+          <span class="nav-icon">🧑‍🤝‍🧑</span>
+          <span class="nav-label">Citizen Portal</span>
+          <span class="nav-badge">3</span>
+        </a>
+
+        <div class="nav-section-label">Intelligence</div>
+
+        <a class="nav-item" data-page="suggestions" id="nav-suggestions">
+          <span class="nav-icon">🤖</span>
+          <span class="nav-label">AI Suggestions</span>
+          <span class="nav-badge">6</span>
+        </a>
+
+        <div class="nav-section-label">Administration</div>
+
+        <a class="nav-item" data-page="admin" id="nav-admin">
+          <span class="nav-icon">🏛️</span>
+          <span class="nav-label">Command Center</span>
+        </a>
+
+        <a class="nav-item" data-page="ngo" id="nav-ngo">
+          <span class="nav-icon">📦</span>
+          <span class="nav-label">NGO Portal</span>
+          <span class="nav-badge">Live</span>
+        </a>
+      </nav>
+
+      <!-- Sidebar Env Widget -->
+      <div class="env-widget">
+        <div class="env-widget-row">
+          <div class="env-widget-item">
+            <div class="env-widget-val" id="env-aqi">142</div>
+            <div class="env-widget-key">AQI</div>
+          </div>
+          <div class="env-widget-divider"></div>
+          <div class="env-widget-item">
+            <div class="env-widget-val" id="env-temp">32°C</div>
+            <div class="env-widget-key">Temp</div>
+          </div>
+          <div class="env-widget-divider"></div>
+          <div class="env-widget-item">
+            <div class="env-widget-val" id="env-humid">68%</div>
+            <div class="env-widget-key">Humidity</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="env-badge">
+          <span class="env-dot"></span>
+          <span id="live-clock">--:-- --</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ── Main Content ── -->
+    <main class="main-content">
+
+      <!-- Header -->
+      <header class="header">
+        <div class="header-left">
+          <button class="header-btn menu-toggle-btn" id="menu-toggle" aria-label="Open Menu">
+            <span class="hamburger-icon">
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
+          </button>
+          <h2 id="header-title" class="header-title">🏠 Home</h2>
+          <div class="header-breadcrumb" id="header-breadcrumb">
+            <span>Dashboard</span>
+            <span class="sep">/</span>
+            <span style="color:var(--text-primary)" id="breadcrumb-page">Home</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <!-- Search -->
+          <div class="header-search">
+            <span class="header-search-icon">🔍</span>
+            <input type="text" id="header-search-input" placeholder="Search pages… (Enter)">
+          </div>
+          <!-- Dark Mode -->
+          <button class="dark-mode-toggle" id="dark-mode-btn" aria-label="Toggle dark mode"
+            title="Toggle dark mode">🌙</button>
+          <!-- Notifications Bell -->
+          <button class="header-btn" id="notif-bell" aria-label="Notifications" style="position:relative">
+            🔔
+            <span id="notif-badge" style="
+              position:absolute;top:-2px;right:-2px;
+              width:18px;height:18px;border-radius:50%;
+              background:#C53030;color:white;
+              font-size:0.65rem;font-weight:700;
+              display:flex;align-items:center;justify-content:center;
+              border:2px solid white;
+            ">3</span>
+          </button>
+          <div class="header-avatar" title="User" id="user-avatar" style="cursor:pointer">AU</div>
+        </div>
+      </header>
+
+      <!-- ═══════════════════════════════════ -->
+      <!--      TOP NAVIGATION BAR            -->
+      <!-- ═══════════════════════════════════ -->
+      <nav class="top-nav" id="top-nav">
+        <div class="top-nav-inner">
+          <a class="top-nav-item active" data-page="home" id="topnav-home">
+            <span class="top-nav-icon">🏠</span>
+            <span>Home</span>
+          </a>
+          <a class="top-nav-item" data-page="dashboard" id="topnav-dashboard">
+            <span class="top-nav-icon">📊</span>
+            <span>Dashboard</span>
+          </a>
+          <a class="top-nav-item" data-page="documents" id="topnav-documents">
+            <span class="top-nav-icon">📄</span>
+            <span>Documents</span>
+          </a>
+          <a class="top-nav-item" data-page="citizen" id="topnav-citizen">
+            <span class="top-nav-icon">🧑‍🤝‍🧑</span>
+            <span>Citizen</span>
+          </a>
+          <a class="top-nav-item" data-page="map" id="topnav-map">
+            <span class="top-nav-icon">🗺️</span>
+            <span>City Map</span>
+          </a>
+        </div>
+        <div class="top-nav-actions">
+          <a class="top-nav-logout" href="#" id="logout-btn">
+            🚪 Logout
+          </a>
+        </div>
+      </nav>
+
+      <!-- Page Container -->
+      <div class="page-container">
+
+        <!-- ════════════════════════════════ -->
+        <!--     PAGE: HOME (Landing)        -->
+        <!-- ════════════════════════════════ -->
+        <div id="page-home" class="page-view active">
+          <div class="landing-hero">
+
+            <!-- Hero Content -->
+            <div class="hero-content">
+              <div class="hero-badge">
+                <span class="hero-badge-dot"></span>
+                Powered by AI · Real-time Monitoring
+              </div>
+
+              <h1 class="hero-title">
+                Building <span class="hero-highlight">Cleaner</span>,<br>
+                Smarter Cities
+              </h1>
+
+              <p class="hero-subtitle">
+                Swachhta & LiFE is India's intelligent urban cleanliness platform — using AI vision, citizen engagement,
+                and real-time zone monitoring to transform how cities stay clean and sustainable.
+              </p>
+
+              <!-- Mini Stats -->
+              <div class="hero-stats">
+                <div class="hero-stat">
+                  <div class="hero-stat-value" data-stat="totalScans">0</div>
+                  <div class="hero-stat-label">AI Scans Today</div>
+                </div>
+                <div class="hero-stat-divider"></div>
+                <div class="hero-stat">
+                  <div class="hero-stat-value" data-stat="resolvedReports">0</div>
+                  <div class="hero-stat-label">Resolved Scans</div>
+                </div>
+                <div class="hero-stat-divider"></div>
+                <div class="hero-stat">
+                  <div class="hero-stat-value" data-stat="activeCitizens">0</div>
+                  <div class="hero-stat-label">Active Citizens</div>
+                </div>
+              </div>
+
+              <!-- Trust Badges -->
+              <div class="hero-trust">
+                <span>🏛️ Swachh Bharat Mission 2.0</span>
+                <span>🌿 LiFE Initiative</span>
+                <span>🤖 AI-Powered</span>
+              </div>
+            </div>
+
+            <!-- Access Portal Box -->
+            <div id="home-access-portal" class="hero-access-box"
+              style="background: rgba(255,255,255,0.65); backdrop-filter: blur(24px); border: 1px solid rgba(255,255,255,0.5); border-radius: 24px; padding: 48px 36px; text-align: center; width: 100%; max-width: 420px; box-shadow: 0 16px 40px rgba(74,103,65,0.08);">
+              <div class="login-card-icon" style="margin: 0 auto 24px; width: 64px; height: 64px; font-size: 2rem;">🌿
+              </div>
+              <h2
+                style="font-size: 2rem; font-weight: 700; color: #1A2E1A; margin-bottom: 12px; letter-spacing: -0.02em;">
+                Access Portal</h2>
+              <p style="color: #4A5D4A; font-size: 1rem; margin-bottom: 32px; line-height: 1.5;">Sign in or create an
+                account to view live analytics, report garbage, and access your eco-dashboard.</p>
+              <a href="login.html" class="hero-login-btn"
+                style="display: block; text-align: center; text-decoration: none; padding: 16px; font-size: 1.05rem; border-radius: 14px;">
+                Go to Sign In →
+              </a>
+            </div>
+
+          </div>
+
+          <!-- ═══════════════════════════════ -->
+          <!--     ABOUT SECTION              -->
+          <!-- ═══════════════════════════════ -->
+          <section class="about-section">
+            <div class="about-label">
+              <span class="about-label-dot"></span>
+              About the Platform
+            </div>
+
+            <div class="about-grid">
+              <!-- Text Content -->
+              <div class="about-text">
+                <h2 class="about-title">Promoting Cleanliness,<br><span class="hero-highlight">Environmental
+                    Awareness</span><br>& Sustainable Living</h2>
+
+                <p class="about-desc">
+                  This website is developed to promote cleanliness, environmental awareness, and sustainable living
+                  through the use of modern technology. It serves as an interactive platform where users can monitor,
+                  report, and improve the cleanliness of their surroundings.
+                </p>
+
+                <p class="about-desc">
+                  The website provides a smart dashboard that displays real-time data related to cleanliness levels,
+                  waste management, and environmental conditions. Users can easily report unclean areas, garbage
+                  dumping, or pollution issues, helping authorities and communities take quick action.
+                </p>
+
+                <p class="about-desc">
+                  It also focuses on spreading awareness about eco-friendly practices by sharing useful tips and
+                  guidelines for reducing waste, saving resources, and adopting a greener lifestyle.
+                </p>
+
+                <p class="about-desc">
+                  By encouraging active participation, the website aims to support initiatives like
+                  <strong>Swachhta</strong> and <strong>LiFE</strong>, creating a sense of responsibility among citizens
+                  toward maintaining a clean and healthy environment.
+                </p>
+              </div>
+
+              <!-- Image Gallery -->
+              <div class="about-images">
+                <div class="about-img-card about-img-large">
+                  <img src="assets/community-cleaning.png" alt="Community cleanliness drive" loading="lazy">
+                  <div class="about-img-label">🧹 Community Cleanliness Drive</div>
+                </div>
+                <div class="about-img-row">
+                  <div class="about-img-card">
+                    <img src="assets/tree-planting.png" alt="Tree planting initiative" loading="lazy">
+                    <div class="about-img-label">🌱 Green Initiative</div>
+                  </div>
+                  <div class="about-img-card">
+                    <img src="assets/clean-city-street.png" alt="Clean city street" loading="lazy">
+                    <div class="about-img-label">🏙️ Smart City Living</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═══════════════════════════════ -->
+          <!--     MISSION PILLARS            -->
+          <!-- ═══════════════════════════════ -->
+          <section class="mission-section">
+            <div class="mission-grid">
+              <div class="mission-card">
+                <div class="mission-icon">📋</div>
+                <h3>Report</h3>
+                <p>Instantly report unclean areas, garbage dumping, or pollution issues to help authorities take quick
+                  action.</p>
+              </div>
+              <div class="mission-card">
+                <div class="mission-icon">📊</div>
+                <h3>Monitor</h3>
+                <p>Access real-time dashboards tracking cleanliness levels, waste management, and environmental
+                  conditions.</p>
+              </div>
+              <div class="mission-card">
+                <div class="mission-icon">🧑‍🤝‍🧑</div>
+                <h3>Engage</h3>
+                <p>Participate in community drives, earn eco badges, and climb the citizen leaderboard for a cleaner
+                  city.</p>
+              </div>
+              <div class="mission-card">
+                <div class="mission-icon">🌿</div>
+                <h3>Sustain</h3>
+                <p>Adopt eco-friendly practices — reduce waste, save resources, and embrace a greener lifestyle every
+                  day.</p>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═══════════════════════════════ -->
+          <!--     CTA BANNER                 -->
+          <!-- ═══════════════════════════════ -->
+          <section class="cta-banner">
+            <div class="cta-content">
+              <h2>Ready to make your city cleaner?</h2>
+              <p>Join thousands of active citizens already making a difference. Sign in or register to access the full
+                dashboard.</p>
+            </div>
+            <div class="cta-stats-row">
+              <div class="cta-stat">
+                <span class="cta-stat-icon">🏙️</span>
+                <div>
+                  <div class="cta-stat-value" data-stat="citiesConnected">1</div>
+                  <div class="cta-stat-label">Cities Connected</div>
+                </div>
+              </div>
+              <div class="cta-stat">
+                <span class="cta-stat-icon">📸</span>
+                <div>
+                  <div class="cta-stat-value" data-stat="totalScans">0</div>
+                  <div class="cta-stat-label">AI Scans Completed</div>
+                </div>
+              </div>
+              <div class="cta-stat">
+                <span class="cta-stat-icon">🌿</span>
+                <div>
+                  <div class="cta-stat-value" data-stat="treesPlanted">0</div>
+                  <div class="cta-stat-label">Trees Planted</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </div>
+
+        <!-- ════════════════════════════════ -->
+        <!--     PAGE: DASHBOARD             -->
+        <!-- ════════════════════════════════ -->
+        <div id="page-dashboard" class="page-view">
+          <div class="page-header">
+            <h1>Operations Dashboard</h1>
+            <p>Real-time city cleanliness operations overview with zone performance, active crews, and AI insights.</p>
+          </div>
+
+          <!-- Dashboard Stats -->
+          <div class="stat-grid" style="margin-bottom: var(--space-8);">
+            <div class="stat-card">
+              <div class="stat-icon green">📸</div>
+              <div class="stat-value" data-stat="totalScans">0</div>
+              <div class="stat-label">Total Scans Today</div>
+              <div class="stat-change positive">Live Update</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon amber">⚠️</div>
+              <div class="stat-value" data-stat="activeReports">0</div>
+              <div class="stat-label">Active Reports</div>
+              <div class="stat-change negative">Live Update</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon blue">📈</div>
+              <div class="stat-value" data-stat="avgScore">0</div>
+              <div class="stat-label">Avg Cleanliness Score</div>
+              <div class="stat-change positive">Live Update</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon green">✅</div>
+              <div class="stat-value" data-stat="resolvedReports">0</div>
+              <div class="stat-label">Resolved Today</div>
+              <div class="stat-change positive">Live Update</div>
+            </div>
+          </div>
+
+          <!-- Quick Access Cards -->
+          <div class="home-grid" style="margin-bottom: var(--space-8);">
+            <div class="home-feature-card" data-goto="ai-detection">
+              <div class="feature-icon-wrapper green">📸</div>
+              <h3>AI Detection</h3>
+              <p>Upload city images for instant garbage and waste detection using our AI vision engine.</p>
+              <span class="feature-arrow">→</span>
+            </div>
+            <div class="home-feature-card" data-goto="map">
+              <div class="feature-icon-wrapper blue">🗺️</div>
+              <h3>City Map</h3>
+              <p>Interactive map with real-time zone markers, cleanliness scores, and live activity.</p>
+              <span class="feature-arrow">→</span>
+            </div>
+            <div class="home-feature-card" data-goto="documents">
+              <div class="feature-icon-wrapper purple">📄</div>
+              <h3>Documents</h3>
+              <p>Access guidelines, SBM reports, compliance documents, and circular letters.</p>
+              <span class="feature-arrow">→</span>
+            </div>
+            <div class="home-feature-card" data-goto="citizen">
+              <div class="feature-icon-wrapper amber">🧑‍🤝‍🧑</div>
+              <h3>Citizen Portal</h3>
+              <p>Citizen engagement hub with complaint uploads, leaderboard, and eco badges.</p>
+              <span class="feature-arrow">→</span>
+            </div>
+          </div>
+
+          <!-- Dashboard Grid -->
+          <div class="dashboard-grid">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">🏘️ Zone Performance</div>
+                <button class="btn btn-secondary btn-sm">View All</button>
+              </div>
+              <div class="zone-list" id="dashboard-zones"></div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">📋 Active Reports</div>
+                <span class="badge badge-amber">18 pending</span>
+              </div>
+              <div class="report-list" id="dashboard-reports"></div>
+            </div>
+          </div>
+
+          <!-- AI Insights -->
+          <div class="card" style="margin-top: var(--space-6);">
+            <div class="card-header">
+              <div class="card-title">🤖 AI Insights</div>
+              <span class="badge badge-purple">Auto-generated</span>
+            </div>
+            <div class="insights-list" id="dashboard-insights"></div>
+          </div>
+
+          <!-- Waste Breakdown + Eco Tip row-->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-6);margin-top:var(--space-6)">
+            <!-- Waste Donut -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">🗑️ Waste Breakdown</div>
+                <span class="badge badge-blue">Today</span>
+              </div>
+              <div id="waste-donut-container"></div>
+            </div>
+
+            <!-- Eco Tip -->
+            <div class="card" style="background:transparent;border:none;padding:0;box-shadow:none">
+              <div id="dashboard-eco-tip" style="height:100%"></div>
+            </div>
+          </div>
+
+          <!-- Activity Feed -->
+          <div class="card" style="margin-top: var(--space-6);">
+            <div class="card-header">
+              <div class="card-title">⚡ Live Activity Feed</div>
+              <div class="pulse-indicator">
+                <div class="pulse-dot green"></div>
+                <span class="badge badge-green" style="font-size:0.7rem">Live</span>
+              </div>
+            </div>
+            <div class="activity-feed" id="home-activity-feed"></div>
+          </div>
+        </div>
+
+        <!-- ════════════════════════════════ -->
+        <!--     PAGE: DOCUMENTS             -->
+        <!-- ════════════════════════════════ -->
+        <div id="page-documents" class="page-view">
+          <div class="page-header">
+            <h1>Documents & Reports</h1>
+            <p>Access official SBM guidelines, compliance reports, municipal circulars, and AI-generated analysis
+              documents.</p>
+          </div>
+
+          <!-- Document Categories -->
+          <div class="doc-categories">
+            <button class="doc-cat-btn active" data-cat="all">📁 All Documents</button>
+            <button class="doc-cat-btn" data-cat="guidelines">📜 Guidelines</button>
+            <button class="doc-cat-btn" data-cat="reports">📊 Reports</button>
+            <button class="doc-cat-btn" data-cat="circulars">📬 Circulars</button>
+            <button class="doc-cat-btn" data-cat="compliance">✅ Compliance</button>
+          </div>
+
+          <!-- Documents Grid -->
+          <div class="documents-grid" id="documents-list">
+            <!-- Row 1 -->
+            <div class="doc-card" data-cat="guidelines">
+              <div class="doc-icon">📜</div>
+              <div class="doc-info">
+                <h4>SBM 2.0 Operational Guidelines</h4>
+                <p>Official operational framework for Swachh Bharat Mission 2.0 — Urban</p>
+                <div class="doc-meta">
+                  <span class="badge badge-green">Guidelines</span>
+                  <span class="doc-date">Updated: Mar 2026</span>
+                </div>
+              </div>
+              <button class="btn btn-secondary btn-sm">📥 Download</button>
+            </div>
+
+            <div class="doc-card" data-cat="reports">
+              <div class="doc-icon">📊</div>
+              <div class="doc-info">
+                <h4>Monthly Cleanliness Report — March 2026</h4>
+                <p>AI-generated zone-wise cleanliness analysis with trend data and recommendations.</p>
+                <div class="doc-meta">
+                  <span class="badge badge-blue">Report</span>
+                  <span class="doc-date">Generated: Apr 01, 2026</span>
+                </div>
+              </div>
+              <button class="btn btn-secondary btn-sm">📥 Download</button>
+            </div>
+
+            <div class="doc-card" data-cat="circulars">
+              <div class="doc-icon">📬</div>
+              <div class="doc-info">
+                <h4>Circular: Plastic Waste Management Protocol</h4>
+                <p>Updated municipal circular on single-use plastic collection, segregation, and disposal procedures.
+                </p>
+                <div class="doc-meta">
+                  <span class="badge badge-amber">Circular</span>
+                  <span class="doc-date">Issued: Feb 15, 2026</span>
+                </div>
+              </div>
+              <button class="btn btn-secondary btn-sm">📥 Download</button>
+            </div>
+
+            <div class="doc-card" data-cat="compliance">
+              <div class="doc-icon">✅</div>
+              <div class="doc-info">
+                <h4>Zone Compliance Audit Report — Q1 2026</h4>
+                <p>Quarterly compliance audit covering all 8 city zones with SBM standard benchmarking.</p>
+                <div class="doc-meta">
+                  <span class="badge badge-green">Compliance</span>
+                  <span class="doc-date">Audit: Jan-Mar 2026</span>
+                </div>
+              </div>
+              <button class="btn btn-secondary btn-sm">📥 Download</button>
+            </div>
+
+            <div class="doc-card" data-cat="guidelines">
+              <div class="doc-icon">📋</div>
+              <div class="doc-info">
+                <h4>Citizen Engagement Framework</h4>
+                <p>Standard operating procedures for citizen complaints, rewards, and gamification system.</p>
+                <div class="doc-meta">
+                  <span class="badge badge-green">Guidelines</span>
+                  <span class="doc-date">Updated: Jan 2026</span>
+                </div>
+              </div>
+              <button class="btn btn-secondary btn-sm">📥 Download</button>
+            </div>
+
+            <div class="doc-card" data-cat="reports">
+              <div class="doc-icon">📈</div>
+              <div class="doc-info">
+                <h4>AI Detection Accuracy Report</h4>
+                <p>Performance benchmarks for the computer vision model — precision, recall, and F1 metrics.</p>
+                <div class="doc-meta">
+                  <span class="badge badge-blue">Report</span>
+                  <span class="doc-date">Generated: Mar 2026</span>
+                </div>
+              </div>
+              <button class="btn btn-secondary btn-sm">📥 Download</button>
+            </div>
+
+            <div class="doc-card" data-cat="circulars">
+              <div class="doc-icon">📢</div>
+              <div class="doc-info">
+                <h4>Notice: Green Cover Enhancement Drive</h4>
+                <p>Municipal notification for tree plantation and green space development across zones D-H.</p>
+                <div class="doc-meta">
+                  <span class="badge badge-amber">Circular</span>
+                  <span class="doc-date">Issued: Mar 20, 2026</span>
+                </div>
+              </div>
+              <button class="btn btn-secondary btn-sm">📥 Download</button>
+            </div>
+
+            <div class="doc-card" data-cat="compliance">
+              <div class="doc-icon">🏛️</div>
+              <div class="doc-info">
+                <h4>NGT Compliance Certificate — 2025-26</h4>
+                <p>National Green Tribunal compliance certificate for solid waste management standards.</p>
+                <div class="doc-meta">
+                  <span class="badge badge-green">Compliance</span>
+                  <span class="doc-date">Valid till: Mar 2027</span>
+                </div>
+              </div>
+              <button class="btn btn-secondary btn-sm">📥 Download</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ════════════════════════════════ -->
+        <!--     PAGE: AI IMAGE DETECTION    -->
+        <!-- ════════════════════════════════ -->
+        <div id="page-ai-detection" class="page-view">
+          <div class="page-header">
+            <h1>AI-Powered Cleanliness Analysis</h1>
+            <p>Upload city images to instantly detect garbage, overflowing bins, plastic waste, and other cleanliness
+              issues using our computer vision AI engine.</p>
+          </div>
+
+          <div class="stat-grid" style="margin-bottom: var(--space-8);">
+            <div class="stat-card">
+              <div class="stat-icon green">📸</div>
+              <div class="stat-value" data-stat="totalScans">—</div>
+              <div class="stat-label">Total Scans Today</div>
+              <div class="stat-change positive" id="ai-scans-change">Loading...</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon amber">⚠️</div>
+              <div class="stat-value" data-stat="activeReports">—</div>
+              <div class="stat-label">Active Reports</div>
+              <div class="stat-change negative" id="ai-active-change">Loading...</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon blue">📈</div>
+              <div class="stat-value" data-stat="avgScore">—</div>
+              <div class="stat-label">Avg Cleanliness Score</div>
+              <div class="stat-change positive">Live AI data</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon green">✅</div>
+              <div class="stat-value" data-stat="resolvedToday">—</div>
+              <div class="stat-label">Resolved Today</div>
+              <div class="stat-change positive" id="ai-resolved-change">Loading...</div>
+            </div>
+          </div>
+
+          <div class="ai-detection-layout">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">📸 Live Camera Capture</div>
+                  <div class="card-subtitle">Point camera at garbage &amp; capture</div>
+                </div>
+              </div>
+
+              <!-- Camera Viewfinder -->
+              <div id="camera-zone"
+                style="position:relative; background:#000; border-radius:16px; overflow:hidden; aspect-ratio:4/3; width:100%; display:flex; align-items:center; justify-content:center;">
+                <video id="camera-feed" autoplay playsinline muted
+                  style="width:100%; height:100%; object-fit:cover; display:none;"></video>
+                <canvas id="camera-canvas" style="display:none;"></canvas>
+
+                <!-- Idle State -->
+                <div id="camera-idle" style="text-align:center; color:#fff; padding:32px;">
+                  <div style="font-size:4rem; margin-bottom:12px;">📷</div>
+                  <div style="font-size:1.1rem; font-weight:600; margin-bottom:8px;">Camera Access Required</div>
+                  <div style="font-size:0.85rem; opacity:0.7; margin-bottom:24px;">Click below to start your device
+                    camera</div>
+                  <button id="btn-start-camera" class="btn btn-primary" onclick="AIDetection.startCamera()"
+                    style="padding:12px 28px; font-size:1rem;">
+                    🎥 Start Camera
+                  </button>
+                </div>
+
+                <!-- Live Camera Controls Overlay -->
+                <div id="camera-controls"
+                  style="display:none; position:absolute; bottom:0; left:0; right:0; padding:16px; background:linear-gradient(transparent, rgba(0,0,0,0.6)); display:none; justify-content:center; gap:16px; align-items:center;">
+                  <button onclick="AIDetection.switchCamera()" title="Switch Camera"
+                    style="background:rgba(255,255,255,0.15); border:none; border-radius:50%; width:44px; height:44px; font-size:1.2rem; cursor:pointer; color:#fff; backdrop-filter:blur(8px);">🔄</button>
+                  <button id="btn-capture" onclick="AIDetection.capturePhoto()"
+                    style="background:#fff; border:none; border-radius:50%; width:72px; height:72px; font-size:2rem; cursor:pointer; box-shadow:0 4px 20px rgba(0,0,0,0.4); transition:transform 0.15s;">📸</button>
+                  <button onclick="AIDetection.stopCamera()" title="Stop Camera"
+                    style="background:rgba(255,255,255,0.15); border:none; border-radius:50%; width:44px; height:44px; font-size:1.2rem; cursor:pointer; color:#fff; backdrop-filter:blur(8px);">⏹️</button>
+                </div>
+
+                <!-- Scanning Overlay (shown while live) -->
+                <div id="camera-scan-line"
+                  style="display:none; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, transparent, #4A6741, transparent); animation: scanLine 2s linear infinite; pointer-events:none;">
+                </div>
+              </div>
+
+              <!-- Photo Preview (shown after capture) -->
+              <div id="upload-preview" class="upload-preview" style="border-radius:16px; overflow:hidden;">
+                <img src="" alt="Captured photo preview">
+                <div class="preview-overlay">
+                  <div class="file-info">
+                    📸 <span class="file-name">photo_captured.jpg</span> &middot; <span class="file-size">--</span>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display:flex;gap:var(--space-3);margin-top:var(--space-4)">
+                <button id="btn-analyze" class="btn btn-primary btn-lg" style="display:none; width: 100%;">🔍 Analyze Image</button>
+                <button id="btn-reset" class="btn btn-secondary" style="display:none">↩️ Upload Another</button>
+              </div>
+              <div id="analysis-loading" class="analysis-loading">
+                <div class="analysis-spinner"></div>
+                <div class="analysis-status"><span class="status-phase">Initializing AI engine...</span></div>
+                <div class="analysis-progress">
+                  <div class="progress-fill" style="width: 0%"></div>
+                </div>
+              </div>
+            </div>
+
+            <div id="results-card" class="card results-card">
+              <div class="card-header">
+                <div class="card-title">🧠 Analysis Results</div>
+                <span class="badge badge-green grade-badge">--</span>
+              </div>
+              <div class="results-header">
+                <div class="results-score-ring">
+                  <svg viewBox="0 0 100 100">
+                    <circle class="ring-bg" cx="50" cy="50" r="42"></circle>
+                    <circle class="ring-fill" cx="50" cy="50" r="42" stroke-dasharray="264" stroke-dashoffset="264">
+                    </circle>
+                  </svg>
+                  <div class="ring-text">
+                    <div class="score-num">0</div>
+                    <div class="score-label">Score</div>
+                  </div>
+                </div>
+                <div class="results-meta">
+                  <h3>Cleanliness Score</h3>
+                  <p>AI-computed score based on detected waste, overflow conditions, and area cleanliness.</p>
+                </div>
+              </div>
+              <div style="margin-bottom:var(--space-4)">
+                <h4
+                  style="font-size:var(--font-size-base);font-weight:var(--font-weight-semibold);margin-bottom:var(--space-3);color:var(--text-secondary)">
+                  Detected Issues</h4>
+                <div class="detection-list"></div>
+              </div>
+              <div class="location-card">
+                <div class="loc-icon">📍</div>
+                <div class="loc-info">
+                  <div class="loc-name">Auto-detecting location...</div>
+                  <div class="loc-coords">--</div>
+                </div>
+                <span class="badge badge-blue">Auto-tagged</span>
+              </div>
+              <div style="display:flex;gap:var(--space-3);margin-top:var(--space-5)">
+                <button class="btn btn-primary btn-sm">📋 Create Report</button>
+                <button class="btn btn-secondary btn-sm">📤 Share Results</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top: var(--space-8);">
+            <div class="card-header">
+              <div class="card-title">🕐 Recent Analyses</div>
+              <button class="btn btn-secondary btn-sm">View All</button>
+            </div>
+            <div id="recent-analyses" class="recent-grid"></div>
+          </div>
+        </div>
+
+        <!-- ════════════════════════════════ -->
+        <!--     PAGE: CITY MAP              -->
+        <!-- ════════════════════════════════ -->
+        <div id="page-map" class="page-view">
+          <div class="page-header">
+            <h1>Smart City Map</h1>
+            <p>Interactive Google Maps view with zone markers, cleanliness scores, and real-time activity feed.</p>
+          </div>
+
+          <div class="map-layout">
+            <!-- Google Map Container -->
+            <div class="card" style="padding: 0; overflow: hidden;">
+              <div id="google-map" class="google-map-container"></div>
+            </div>
+
+            <!-- Activity Sidebar -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">⚡ Live Activity</div>
+                <span class="badge badge-green">Live</span>
+              </div>
+              <div class="activity-feed" id="map-activity-feed">
+                <!-- Populated by JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ════════════════════════════════ -->
+        <!--     PAGE: LiFE Score            -->
+        <!-- ════════════════════════════════ -->
+        <div id="page-life-score" class="page-view">
+          <div class="empty-state">
+            <div class="empty-icon">📊</div>
+            <div class="empty-title">LiFE Score Tracker</div>
+            <div class="empty-desc">Sustainability metrics dashboard with waste segregation, plastic usage, green
+              cover,
+              and citizen participation scores. Coming in Phase 2.</div>
+          </div>
+        </div>
+
+        <!-- ════════════════════════════════ -->
+        <!--     PAGE: CITIZEN PORTAL        -->
+        <!-- ════════════════════════════════ -->
+        <div id="page-citizen" class="page-view">
+          <div class="page-header">
+            <h1>Citizen Engagement Portal</h1>
+            <p>Empowering citizens to report, track, and compete for a cleaner city. Upload complaints, earn eco
+              badges,
+              and climb the leaderboard.</p>
+          </div>
+
+          <!-- Citizen Stats -->
+          <div class="stat-grid" style="margin-bottom: var(--space-8);">
+            <div class="stat-card">
+              <div class="stat-icon green">🧑‍🤝‍🧑</div>
+              <div class="stat-value" data-stat="activeCitizens">0</div>
+              <div class="stat-label">Active Citizens</div>
+              <div class="stat-change positive">Live Update</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon blue">📋</div>
+              <div class="stat-value" data-stat="totalReports">0</div>
+              <div class="stat-label">Total Reports Filed</div>
+              <div class="stat-change positive">Live Update</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon amber">🏆</div>
+              <div class="stat-value" data-stat="ecoPoints">0</div>
+              <div class="stat-label">My Eco Points</div>
+              <div class="stat-change positive">Keep it up!</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon green">🌟</div>
+              <div class="stat-value" data-stat="resolvedReports">0</div>
+              <div class="stat-label">City Resolved Jobs</div>
+              <div class="stat-change positive">Live Update</div>
+            </div>
+          </div>
+
+          <!-- Citizen Content Grid -->
+          <div class="citizen-grid">
+            <!-- My Reports Tracking -->
+            <div class="card" style="display: flex; flex-direction: column;">
+              <div class="card-header">
+                <div class="card-title">📝 My Reports History</div>
+              </div>
+              <div id="citizen-my-reports"
+                style="overflow-y: auto; max-height: 480px; padding-right: 8px; flex: 1; display:flex; flex-direction: column; gap: 12px;">
+                <!-- Populated by JS -->
+                <div style="font-size: 0.85rem; color: var(--text-muted); text-align: center; padding: 20px;">Loading
+                  your reports...</div>
+              </div>
+            </div>
+
+            <!-- Leaderboard -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">🏆 Eco Leaderboard</div>
+                <span class="badge badge-amber">Top Citizens</span>
+              </div>
+              <div class="leaderboard-list" id="citizen-leaderboard">
+                <!-- Populated by JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ════════════════════════════════ -->
+        <!--     PAGE: AI Suggestions        -->
+        <!-- ════════════════════════════════ -->
+        <div id="page-suggestions" class="page-view">
+          <div class="page-header">
+            <h1>AI Suggestions Engine</h1>
+            <p>Automated, actionable alerts and prioritized recommendations based on city zone data analysis.</p>
+          </div>
+          <div class="suggestions-list" id="suggestions-list">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- ════════════════════════════════ -->
+        <!--     PAGE: Admin                 -->
+        <!-- ════════════════════════════════ -->
+        <div id="page-admin" class="page-view">
+          <div class="page-header">
+            <h1>Command Center</h1>
+            <p>Administrative control panel with report management, crew assignments, and performance analytics.</p>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📋 Report Management</div>
+              <button class="btn btn-primary btn-sm">+ New Report</button>
+            </div>
+            <div style="overflow-x: auto;">
+              <table class="admin-table" id="admin-reports-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Assignee</th>
+                    <th>Time</th>
+                    <th>Priority</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-reports-body">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ════════════════════════════════ -->
+        <!--     PAGE: NGO PORTAL            -->
+        <!-- ════════════════════════════════ -->
+        <div id="page-ngo" class="page-view">
+          <div class="page-header">
+            <h1>NGO Dispatch Feed</h1>
+            <p>Live, auto-updating photo stream of all AI waste analyses. Review visual evidence and accept requests to dispatch cleanup crews instantly.</p>
+          </div>
+
+          <div class="ngo-photo-grid" id="ngo-photo-grid">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ════════════════════════════════════════ -->
+  <!--   NOTIFICATION PANEL (floating)          -->
+  <!-- ════════════════════════════════════════ -->
+  <div class="notif-panel" id="notif-panel">
+    <div class="notif-header">
+      <h3>🔔 Notifications</h3>
+      <button class="notif-mark-all" id="notif-mark-all">Mark all read</button>
+    </div>
+    <div class="notif-list" id="notif-list">
+      <!-- Populated by Enhancements.js -->
+    </div>
+  </div>
+
+  <button class="fab-btn" id="fab-report" title="Quick Report">
+    📍
+  </button>
+
+  <!-- ════════════════════════════════════════ -->
+  <!--   QUICK REPORT MODAL                     -->
+  <!-- ════════════════════════════════════════ -->
+  <div class="qr-modal" id="qr-modal">
+    <div class="qr-modal-card">
+      <div class="qr-modal-header">
+        <h2>📍 Quick Garbage Report</h2>
+        <button class="qr-close" id="qr-close">×</button>
+      </div>
+
+      <!-- Issue Type -->
+      <div class="qr-step">
+        <div class="qr-label">⚠️ Issue Type</div>
+        <div class="qr-type-grid">
+          <button class="qr-type-btn" data-type="plastic"><span>🧴</span>Plastic</button>
+          <button class="qr-type-btn" data-type="wet"><span>🍂</span>Wet Waste</button>
+          <button class="qr-type-btn" data-type="dry"><span>📦</span>Dry Waste</button>
+          <button class="qr-type-btn" data-type="bin"><span>🗑️</span>Overf. Bin</button>
+          <button class="qr-type-btn" data-type="drain"><span>💧</span>Drain Block</button>
+          <button class="qr-type-btn" data-type="dump"><span>⛔</span>Open Dump</button>
+        </div>
+      </div>
+
+      <!-- Location -->
+      <div class="qr-step">
+        <div class="qr-label">📍 Location</div>
+        <input class="qr-input" id="qr-location" type="text" placeholder="e.g. Chandni Chowk Gate 3...">
+      </div>
+
+      <!-- Photo -->
+      <div class="qr-step">
+        <div class="qr-label">📷 Live Capture Evidence</div>
+        <div class="ai-camera-container" id="qr-camera-container" style="position: relative; min-height: 200px; background: #000; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+          <video id="qr-video" autoplay playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
+          <canvas id="qr-canvas" style="display:none;"></canvas>
+          <button class="btn btn-secondary" id="qr-capture-btn" style="position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); z-index: 10; padding: 10px 24px; border-radius: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">📸 Capture</button>
+        </div>
+        <div id="qr-preview-container" style="display:none; position:relative; min-height: 200px;">
+          <img id="qr-preview-img" style="width:100%; border-radius:8px; object-fit:cover;">
+          <button class="btn" id="qr-retake-btn" style="position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.6); color:white; border-radius:20px; padding:6px 14px; border:none; cursor:pointer;">🔄 Retake</button>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="qr-step">
+        <div class="qr-label">📝 Description</div>
+        <textarea class="qr-textarea" id="qr-description" placeholder="Brief description of the issue..."></textarea>
+      </div>
+
+      <button class="btn btn-primary" id="qr-submit-btn" style="width:100%;padding:14px;font-size:0.97rem">
+        📤 Submit Report
+      </button>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/auth.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/ai-detection.js"></script>
+  <script src="js/enhancements.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    // ── Boot Auth + Enhancements ──
+    document.addEventListener('DOMContentLoaded', () => {
+      // Auth user display
+      const user = Auth.getUser();
+      if (user) {
+        const avatarEl = document.getElementById('user-avatar');
+        if (avatarEl) {
+          avatarEl.textContent = user.avatar || user.name?.charAt(0)?.toUpperCase() || '🌿';
+          avatarEl.title = `${user.name} (${user.email})`;
+        }
+      }
+
+      // Logout
+      const logoutBtn = document.getElementById('logout-btn');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', (e) => { e.preventDefault(); Auth.logout(); });
+      }
+
+      // Boot all enhancements
+      Enhancements.init();
+
+      // Wire App to init LiFE Score page on navigation
+      const origNavigate = App.navigateTo.bind(App);
+      App.navigateTo = function (pageId) {
+        origNavigate(pageId);
+        if (pageId === 'life-score') {
+          Enhancements.initLifeScore();
+        }
+        if (pageId === 'dashboard') {
+          setTimeout(() => Enhancements.renderWasteDonut(), 200);
+        }
+      };
+    });
+  </script>
+</body>
+
+</html>
